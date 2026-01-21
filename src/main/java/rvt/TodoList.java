@@ -1,41 +1,96 @@
 package rvt;
-import java.util.ArrayList;
+import java.io.*;
+import java.util.*;
 
 public class TodoList {
-    private ArrayList<String> tasks;
+    private ArrayList<String> tasks = new ArrayList<>();
+    private final String filePath = "data/todo.csv";
 
     public TodoList() {
-        this.tasks = new ArrayList<>();
-    }
-    
-    public void add(String task) {
-        tasks.add(task);
+        loadFromFile();
     }
 
-    public void print() {
-        for (int i = 0; i < tasks.size(); i++) {
-            System.out.println((i + 1) + ": " + tasks.get(i));
+    private void loadFromFile() {
+        try (Scanner reader = new Scanner(new File(filePath))) {
+            if (reader.hasNextLine()) {
+                reader.nextLine();
+            }
+            while (reader.hasNextLine()) {
+                tasks.add(reader.nextLine());
+            }
+        } catch (Exception e) {
+            System.out.println("Fails todo.csv netika atrasts!");
         }
     }
 
-    public void remove(int number) {
-        if (number >= 1 && number <= tasks.size()) {
-            tasks.remove(number - 1);
+    private int getLastId() {
+        if (tasks.isEmpty()) return 0;
+
+        String lastLine = tasks.get(tasks.size() - 1);
+        String[] parts = lastLine.split(",", 2);
+        return Integer.parseInt(parts[0]);
+    }
+
+    private void updateFile() {
+        try (PrintWriter writer = new PrintWriter(new File(filePath))) {
+            writer.println("id,task");
+            for (String task : tasks) {
+                writer.println(task);
+            }
+        } catch (Exception e) {
+            System.out.println("Neizdevās saglabāt failu!");
+        }
+    }
+
+    public void add(String taskText) {
+        int newId = getLastId() + 1;
+        tasks.add(newId + "," + taskText);
+        updateFile();
+    }
+
+    public void remove(int id) {
+        for (int i = 0; i < tasks.size(); i++) {
+            String[] parts = tasks.get(i).split(",", 2);
+            if (Integer.parseInt(parts[0]) == id) {
+                tasks.remove(i);
+                updateFile();
+                return;
+            }
+        }
+        System.out.println("Uzdevums ar ID " + id + " nav atrasts!");
+    }
+
+    public void print() {
+        for (String task : tasks) {
+            String[] parts = task.split(",", 2);
+            System.out.println(parts[0] + ": " + parts[1]);
         }
     }
 
     public static void main(String[] args) {
         TodoList list = new TodoList();
-        list.add("read the course material");
-        list.add("watch the latest fool us");
-        list.add("take it easy");
-        list.print();
-        list.remove(2);
-        list.print();
-        list.add("buy raisins");
-        list.print();
-        list.remove(1);
-        list.remove(1);
-        list.print();
+        Scanner input = new Scanner(System.in);
+
+        while (true) {
+            System.out.print("Command: ");
+            String command = input.nextLine();
+
+            if (command.equals("stop")) {
+                break;
+
+            } else if (command.equals("add")) {
+                System.out.print("To add: ");
+                list.add(input.nextLine());
+
+            } else if (command.equals("remove")) {
+                System.out.print("Which one is removed? ");
+                list.remove(Integer.parseInt(input.nextLine()));
+
+            } else if (command.equals("list")) {
+                list.print();
+            }
+        }
+
+        input.close();
     }
 }
