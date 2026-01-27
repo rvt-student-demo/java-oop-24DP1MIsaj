@@ -24,7 +24,9 @@ public class TodoList {
     }
 
     private int getLastId() {
-        if (tasks.isEmpty()) return 0;
+        if (tasks.isEmpty()) {
+            return 0;
+        }
 
         String lastLine = tasks.get(tasks.size() - 1);
         String[] parts = lastLine.split(",", 2);
@@ -50,13 +52,14 @@ public class TodoList {
 
     public void remove(int id) {
         for (int i = 0; i < tasks.size(); i++) {
-            String[] parts = tasks.get(i).split(",", 2);
+            String[] parts = tasks.get(i).split(",");
             if (Integer.parseInt(parts[0]) == id) {
                 tasks.remove(i);
                 updateFile();
                 return;
             }
         }
+
         System.out.println("Uzdevums ar ID " + id + " nav atrasts!");
     }
 
@@ -67,20 +70,38 @@ public class TodoList {
         }
     }
 
+    public boolean checkEventString(String value) {
+        if (value == null) {
+            return false;
+        }
+
+        if (value.length() < 3) {
+            return false;
+        }
+
+        return value.matches("[\\p{L}\\p{N}\\p{P}\\s]+");
+    }
+
     public static void main(String[] args) {
         TodoList list = new TodoList();
         Scanner input = new Scanner(System.in);
 
         while (true) {
             System.out.print("Command: ");
-            String command = input.nextLine();
+            String command = input.nextLine().trim();
 
             if (command.equals("stop")) {
                 break;
 
             } else if (command.equals("add")) {
                 System.out.print("To add: ");
-                list.add(input.nextLine());
+                String text = input.nextLine();
+
+                if (list.checkEventString(text)) {
+                    list.add(text);
+                } else {
+                    System.out.println("Nederīgs teksts! Min. 3 simboli, tikai burti, cipari un atstarpes.");
+                }
 
             } else if (command.equals("remove")) {
                 System.out.print("Which one is removed? ");
