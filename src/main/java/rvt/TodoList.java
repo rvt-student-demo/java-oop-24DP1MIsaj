@@ -52,7 +52,7 @@ public class TodoList {
 
     public void remove(int id) {
         for (int i = 0; i < tasks.size(); i++) {
-            String[] parts = tasks.get(i).split(",");
+            String[] parts = tasks.get(i).split(",", 2);
             if (Integer.parseInt(parts[0]) == id) {
                 tasks.remove(i);
                 updateFile();
@@ -105,7 +105,7 @@ public class TodoList {
 
             } else if (command.equals("remove")) {
                 System.out.print("Which one is removed? ");
-                list.remove(Integer.parseInt(input.nextLine()));
+                list.remove(Integer.valueOf(input.nextLine()));
 
             } else if (command.equals("list")) {
                 list.print();
