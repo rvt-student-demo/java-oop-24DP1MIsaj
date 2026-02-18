@@ -10,6 +10,12 @@ public class Studentu_registracijas_sistema {
     private final String filePath = "data/students.csv";
     private Scanner sc = new Scanner(System.in);
 
+    public static final String RESET = "\u001B[0m";
+    public static final String RED = "\u001B[31m";
+    public static final String GREEN = "\u001B[32m";
+    public static final String YELLOW = "\u001B[33m";
+    public static final String BLUE = "\u001B[34m";
+
     private void loadFromFile() {
         students.clear();
         try (Scanner r = new Scanner(new File(filePath))) {
@@ -17,7 +23,7 @@ public class Studentu_registracijas_sistema {
                 students.add(r.nextLine());
             }
         } catch (Exception e) {
-            System.out.println("File not found, a new one will be created.");
+            System.out.println(YELLOW + "File not found, new file will be created." + RESET);
         }
     }
 
@@ -27,7 +33,7 @@ public class Studentu_registracijas_sistema {
                 w.println(s);
             }
         } catch (Exception e) {
-            System.out.println("Error saving file!");
+            System.out.println(RED + "Error saving file!" + RESET);
         }
     }
 
@@ -45,14 +51,14 @@ public class Studentu_registracijas_sistema {
         String code = sc.nextLine();
 
         if (name.length() < 3 || surname.length() < 3 || !email.contains("@") || code.length() != 11) {
-            System.out.println("Invalid data!");
+            System.out.println(RED + "Invalid data!" + RESET);
             return;
         }
 
         for (String s : students) {
             String[] p = s.split(",");
             if (p[2].equals(email) || p[3].equals(code)) {
-                System.out.println("This email or personal ID already exists!");
+                System.out.println(YELLOW + "Email or Personal ID already exists!" + RESET);
                 return;
             }
         }
@@ -60,17 +66,18 @@ public class Studentu_registracijas_sistema {
         String dateTime = LocalDateTime.now().toString();
         students.add(name + "," + surname + "," + email + "," + code + "," + dateTime);
         saveToFile();
-        System.out.println("Student registered!");
+        System.out.println(GREEN + "Student registered!" + RESET);
     }
 
     private void show() {
         if (students.isEmpty()) {
-            System.out.println("No students found.");
+            System.out.println(YELLOW + "No students found." + RESET);
             return;
         }
+
         for (String s : students) {
             String[] p = s.split(",");
-            System.out.println(p[0] + " " + p[1] + " | " + p[2] + " | " + p[3] + " | " + p[4]);
+            System.out.println(BLUE + p[0] + " | " + p[1] + " | " + p[2] + " | " + p[3] + " | " + p[4] + RESET);
         }
     }
 
@@ -81,11 +88,11 @@ public class Studentu_registracijas_sistema {
             if (p[3].equals(code)) {
                 students.remove(i);
                 saveToFile();
-                System.out.println("Student removed!");
+                System.out.println(GREEN + "Student removed!" + RESET);
                 return;
             }
         }
-        System.out.println("Student with this ID not found!");
+        System.out.println(RED + "Student with this ID not found!" + RESET);
     }
 
     public void edit() {
@@ -97,17 +104,17 @@ public class Studentu_registracijas_sistema {
                 System.out.print("New Email: ");
                 String email = sc.nextLine();
                 if (!email.contains("@")) {
-                    System.out.println("Invalid email!");
+                    System.out.println(RED + "Invalid email!" + RESET);
                     return;
                 }
                 p[2] = email;
                 students.set(i, String.join(",", p));
                 saveToFile();
-                System.out.println("Student data updated!");
+                System.out.println(GREEN + "Student data updated!" + RESET);
                 return;
             }
         }
-        System.out.println("Student not found!");
+        System.out.println(RED + "Student not found!" + RESET);
     }
 
     public static void main(String[] args) {
