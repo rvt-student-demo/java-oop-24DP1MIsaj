@@ -11,26 +11,23 @@ public class ShoppingCart {
     }
 
     public void add(String product, int price) {
-        if (items.containsKey(product)) {
-            items.get(product).increaseQuantity();
-        } else {
-            items.put(product, new Item(product, 1, price));
-        }
+        items.compute(product, (key, item) -> {
+            if (item == null) {
+                return new Item(product, 1, price);
+            }
+            item.increaseQuantity();
+            return item;
+        });
     }
 
     public int price() {
-        int total = 0;
-
-        for (Item item : items.values()) {
-            total += item.price();
-        }
-
-        return total;
+        return items.values()
+                .stream()
+                .mapToInt(Item::price)
+                .sum();
     }
 
     public void print() {
-        for (Item item : items.values()) {
-            System.out.println(item);
-        }
+        items.values().forEach(System.out::println);
     }
 }
