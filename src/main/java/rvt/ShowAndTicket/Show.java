@@ -8,4 +8,13 @@ public class Show {
         this.movie = movie;
         this.time = time;
     }
+
+    public String getMovie() {
+        return this.movie;
+    }
+
+    public String getTime() {
+        return this.time;
+    }
 }
+

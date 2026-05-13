@@ -48,6 +48,8 @@ public class TodoList {
         int newId = getLastId() + 1;
         tasks.add(newId + "," + taskText);
         updateFile();
+
+        // INSERT INTO todo ....
     }
 
     public void remove(int id) {
@@ -87,7 +89,7 @@ public class TodoList {
         Scanner input = new Scanner(System.in);
 
         while (true) {
-            System.out.print("Command: ");
+            System.out.print("Command(stop, add, remove, list): ");
             String command = input.nextLine().trim();
 
             if (command.equals("stop")) {
@@ -104,6 +106,7 @@ public class TodoList {
                 }
 
             } else if (command.equals("remove")) {
+                list.print();
                 System.out.print("Which one is removed? ");
                 list.remove(Integer.valueOf(input.nextLine()));
 

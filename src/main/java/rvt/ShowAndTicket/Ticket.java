@@ -10,4 +10,16 @@ public class Ticket {
         this.code = code;
         this.show = show;
     }
+
+    public int getSeat() {
+        return this.seat;
+    }
+
+    public int getCode() {
+        return this.code;
+    }
+
+    public Show getShow() {
+        return this.show;
+    }
 }
