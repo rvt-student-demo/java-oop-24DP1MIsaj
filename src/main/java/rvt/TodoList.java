@@ -1,74 +1,75 @@
 package rvt;
-import java.io.*;
-import java.util.*;
+import java.sql.*;
+import java.util.Scanner;
 
 public class TodoList {
-    private ArrayList<String> tasks = new ArrayList<>();
-    private final String filePath = "data/todo.csv";
+    private Connection conn;
 
     public TodoList() {
-        loadFromFile();
-    }
+        try {
+            conn = DriverManager.getConnection("jdbc:sqlite:todo.db");
 
-    private void loadFromFile() {
-        try (Scanner reader = new Scanner(new File(filePath))) {
-            if (reader.hasNextLine()) {
-                reader.nextLine();
-            }
-            while (reader.hasNextLine()) {
-                tasks.add(reader.nextLine());
-            }
-        } catch (Exception e) {
-            System.out.println("Fails todo.csv netika atrasts!");
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate(
+                "CREATE TABLE IF NOT EXISTS todo (" +
+                "id INTEGER PRIMARY KEY, " +
+                "task TEXT NOT NULL" +
+                ")"
+            );
+            stmt.close();
+
+        } catch (SQLException e) {
+            System.out.println("DB kļūda: " + e.getMessage());
         }
     }
 
-    private int getLastId() {
-        if (tasks.isEmpty()) {
-            return 0;
+    public void add(String task) {
+        try {
+            PreparedStatement stmt = conn.prepareStatement(
+                "INSERT INTO todo(task) VALUES(?)"
+            );
+            stmt.setString(1, task);
+            stmt.executeUpdate();
+            stmt.close();
+
+        } catch (SQLException e) {
+            System.out.println("Neizdevās pievienot!");
         }
-
-        String lastLine = tasks.get(tasks.size() - 1);
-        String[] parts = lastLine.split(",", 2);
-        return Integer.parseInt(parts[0]);
-    }
-
-    private void updateFile() {
-        try (PrintWriter writer = new PrintWriter(new File(filePath))) {
-            writer.println("id,task");
-            for (String task : tasks) {
-                writer.println(task);
-            }
-        } catch (Exception e) {
-            System.out.println("Neizdevās saglabāt failu!");
-        }
-    }
-
-    public void add(String taskText) {
-        int newId = getLastId() + 1;
-        tasks.add(newId + "," + taskText);
-        updateFile();
-
-        // INSERT INTO todo ....
     }
 
     public void remove(int id) {
-        for (int i = 0; i < tasks.size(); i++) {
-            String[] parts = tasks.get(i).split(",", 2);
-            if (Integer.parseInt(parts[0]) == id) {
-                tasks.remove(i);
-                updateFile();
-                return;
-            }
-        }
+        try {
+            PreparedStatement stmt = conn.prepareStatement(
+                "DELETE FROM todo WHERE id = ?"
+            );
+            stmt.setInt(1, id);
 
-        System.out.println("Uzdevums ar ID " + id + " nav atrasts!");
+            int rows = stmt.executeUpdate();
+            stmt.close();
+
+            if (rows == 0) {
+                System.out.println("Uzdevums ar ID " + id + " nav atrasts!");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Neizdevās dzēst!");
+        }
     }
 
     public void print() {
-        for (String task : tasks) {
-            String[] parts = task.split(",", 2);
-            System.out.println(parts[0] + ": " + parts[1]);
+        try {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM todo");
+
+            while (rs.next()) {
+                System.out.println(rs.getInt("id") + ": " + rs.getString("task"));
+            }
+
+            rs.close();
+            stmt.close();
+
+        } catch (SQLException e) {
+            System.out.println("Neizdevās nolasīt!");
         }
     }
 
@@ -82,6 +83,14 @@ public class TodoList {
         }
 
         return value.matches("[\\p{L}\\p{N}\\p{P}\\s]+");
+    }
+
+    public void close() {
+        try {
+            conn.close();
+        } catch (SQLException e) {
+            System.out.println("Neizdevās aizvērt DB!");
+        }
     }
 
     public static void main(String[] args) {
@@ -102,19 +111,20 @@ public class TodoList {
                 if (list.checkEventString(text)) {
                     list.add(text);
                 } else {
-                    System.out.println("Nederīgs teksts! Min. 3 simboli, tikai burti, cipari un atstarpes.");
+                    System.out.println("Nederīgs teksts!");
                 }
 
             } else if (command.equals("remove")) {
                 list.print();
                 System.out.print("Which one is removed? ");
-                list.remove(Integer.valueOf(input.nextLine()));
+                list.remove(Integer.parseInt(input.nextLine()));
 
             } else if (command.equals("list")) {
                 list.print();
             }
         }
 
+        list.close();
         input.close();
     }
 }
