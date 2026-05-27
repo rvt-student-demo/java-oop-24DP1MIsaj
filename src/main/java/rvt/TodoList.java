@@ -37,7 +37,7 @@ public class TodoList {
         }
     }
 
-    public void remove(int id) {
+    public void removeById(int id) {
         try {
             PreparedStatement stmt = conn.prepareStatement(
                 "DELETE FROM todo WHERE id = ?"
@@ -56,7 +56,7 @@ public class TodoList {
         }
     }
 
-    public void print() {
+    public void findAll() {
         try {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM todo");
@@ -115,12 +115,17 @@ public class TodoList {
                 }
 
             } else if (command.equals("remove")) {
-                list.print();
+                list.findAll();
                 System.out.print("Which one is removed? ");
-                list.remove(Integer.parseInt(input.nextLine()));
+                
+                try {
+                    list.removeById(Integer.parseInt(input.nextLine()));
+                } catch (NumberFormatException e) {
+                    System.out.println("Jāievada skaitlis (ID)!");
+                }
 
             } else if (command.equals("list")) {
-                list.print();
+                list.findAll();
             }
         }
 
