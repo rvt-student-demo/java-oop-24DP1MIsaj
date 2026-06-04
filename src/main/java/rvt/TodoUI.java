@@ -7,7 +7,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-// Composotion
+// Composition
 public class TodoUI {
     private JFrame window;
     private JPanel panel;
@@ -22,23 +22,20 @@ public class TodoUI {
         window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         window.setSize(1000, 1000);
         window.setLocationRelativeTo(null);
-        window.setBackground(Color.CYAN);
 
-        window.setLayout(new BorderLayout());
-        button = new JButton();
+        window.setLayout(new BorderLayout(10, 10));
+
         window.add(new JButton("NORTH"), BorderLayout.NORTH);
         window.add(new JButton("WEST"), BorderLayout.WEST);
         window.add(new JButton("EAST"), BorderLayout.EAST);
         window.add(new JButton("SOUTH"), BorderLayout.SOUTH);
 
-        BorderLayout borderLayout = new BorderLayout();
-        borderLayout.setHgap(10);
-        borderLayout.setVgap(10);
-
         panel = new JPanel();
         panel.setBackground(Color.MAGENTA);
-        window.add(panel);
+        window.add(panel, BorderLayout.CENTER);
 
+        button = new JButton("Click");
+        window.add(button, BorderLayout.CENTER);
     }
 
     public void show() {
